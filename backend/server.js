@@ -29,7 +29,9 @@ const EMAIL_FROM = process.env.SMTP_FROM || process.env.SMTP_USER || 'ISKCON Nag
 const YOUTUBE_CHANNEL_ID = (process.env.YOUTUBE_CHANNEL_ID || '').trim();
 const YOUTUBE_CHANNEL_URL = process.env.YOUTUBE_CHANNEL_URL || 'https://www.youtube.com/results?search_query=ISKCON+Nagda';
 const YOUTUBE_LIVE_URL = process.env.YOUTUBE_LIVE_URL || (process.env.YOUTUBE_CHANNEL_URL ? `${YOUTUBE_CHANNEL_URL}/live` : YOUTUBE_CHANNEL_URL);
-const YOUTUBE_STATE_FILE = path.join(__dirname, 'youtube_feed_state.json');
+const DATA_DIR = path.resolve(process.env.DATA_DIR || __dirname);
+fs.mkdirSync(DATA_DIR, { recursive:true });
+const YOUTUBE_STATE_FILE = path.join(DATA_DIR, 'youtube_feed_state.json');
 const youtubeParser = new XMLParser({ ignoreAttributes: false });
 let youtubeLatest = [];
 let youtubeLastSeen = '';
@@ -218,9 +220,9 @@ db.vaisnavaCalendar = VERIFIED_2026_CALENDAR;
 
 const adminSessions = new Map();
 const ADMIN_SESSION_TTL_MS = 8 * 60 * 60 * 1000;
-const CALENDAR_STORE_FILE = path.join(__dirname, 'vaisnava_calendar_overrides.json');
-const PUSH_STORE_FILE = path.join(__dirname, 'push_subscriptions.json');
-const ADMIN_CREDENTIALS_FILE = path.join(__dirname, 'admin-credentials.json');
+const CALENDAR_STORE_FILE = path.join(DATA_DIR, 'vaisnava_calendar_overrides.json');
+const PUSH_STORE_FILE = path.join(DATA_DIR, 'push_subscriptions.json');
+const ADMIN_CREDENTIALS_FILE = path.join(DATA_DIR, 'admin-credentials.json');
 let storedAdminCredential = null;
 try {
   storedAdminCredential = JSON.parse(fs.readFileSync(ADMIN_CREDENTIALS_FILE, 'utf8'));
@@ -288,7 +290,7 @@ function loadPushSubscriptions() {
 
 loadPushSubscriptions();
 
-const SITE_DATA_FILE = path.resolve(process.env.SITE_DATA_FILE || path.join(__dirname, 'site-data.json'));
+const SITE_DATA_FILE = path.resolve(process.env.SITE_DATA_FILE || path.join(DATA_DIR, 'site-data.json'));
 const PERSISTED_DB_KEYS = [
   'events', 'trips', 'lectures', 'meetings', 'notices', 'notifications', 'donations',
   'volunteers', 'newsletter', 'liveStream', 'darshan', 'vaisnavaCalendar', 'parampara',
@@ -398,7 +400,7 @@ function loadOrCreateVapidKeys() {
   const privateKeyFromEnv = (process.env.VAPID_PRIVATE_KEY || '').trim();
   if (publicKeyFromEnv && privateKeyFromEnv) return { publicKey: publicKeyFromEnv, privateKey: privateKeyFromEnv };
 
-  const filePath = path.join(__dirname, '.vapid.json');
+  const filePath = path.join(DATA_DIR, '.vapid.json');
   try {
     const raw = fs.readFileSync(filePath, 'utf8');
     const parsed = JSON.parse(raw);

@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: iskcon-nagda-community
+    runtime: node
+    plan: 0.5c-512mb
+    region: singapore
+    branch: main
+    buildCommand: npm ci --prefix backend
+    startCommand: npm start
+    healthCheckPath: /api/live
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATA_DIR
+        value: /var/data
+      - key: ADMIN_PASSWORD
+        sync: false
+    disk:
+      name: iskcon-site-data
+      mountPath: /var/data
+      sizeGB: 1
