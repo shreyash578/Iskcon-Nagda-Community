@@ -1,0 +1,16 @@
+backend/.env
+backend/admin-credentials.json
+backend/admin-credentials.json.tmp
+backend/site-data.json
+backend/site-data.json.tmp
+site-data.json
+site-data.json.tmp
+backend/push_subscriptions.json
+backend/.vapid.json
+backend/youtube_feed_state.json
+backend/current_day_schedule.json
+**/node_modules/
+**/.env
+**/.env.*
+!**/.env.example
+*.log

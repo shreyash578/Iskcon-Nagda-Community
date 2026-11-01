@@ -1,0 +1,61 @@
+{
+  "calendar": [
+    {
+      "id": "rama-ekadashi-2026",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Rama Ekadashi",
+      "type": "ekadashi",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "fasting": "Follow local temple Ekadashi guidance.",
+      "notes": "ISKCON Mayapur calendar observance.",
+      "date": "2026-11-05"
+    },
+    {
+      "id": "dipavali-2026",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "type": "festival",
+      "date": "2026-11-09",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Dipavali",
+      "notes": "Festival of lamps. Local program details are announced by the temple."
+    },
+    {
+      "id": "govardhana-puja-2026",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "type": "festival",
+      "date": "2026-11-10",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Govardhana Puja",
+      "notes": "Govardhana Puja and Annakuta. Local program details are announced by the temple."
+    },
+    {
+      "id": "utthana-ekadashi-2026",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Utthana Ekadashi",
+      "type": "ekadashi",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "fasting": "Follow local temple Ekadashi guidance.",
+      "notes": "ISKCON Mayapur calendar observance.",
+      "date": "2026-11-21"
+    },
+    {
+      "id": "utpanna-ekadashi-2026",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Utpanna Ekadashi",
+      "type": "ekadashi",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "fasting": "Follow local temple Ekadashi guidance.",
+      "notes": "ISKCON Mayapur calendar observance.",
+      "date": "2026-12-05"
+    },
+    {
+      "id": "gita-jayanti-2026",
+      "source": "ISKCON Mayapur Festival Calendar 2026-2027",
+      "type": "festival",
+      "date": "2026-12-20",
+      "sourceUrl": "https://srimayapurdhama.com/festivals/2026-2027/",
+      "title": "Gita Jayanti",
+      "notes": "Commemoration of the speaking of Bhagavad-gita. Local program details are announced by the temple."
+    }
+  ]
+}

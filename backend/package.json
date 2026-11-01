@@ -1,0 +1,40 @@
+{
+  "name": "iskcon-nagda-backend",
+  "version": "2.0.0",
+  "description": "ISKCON Nagda Community Full-Stack Backend",
+  "engines": {
+    "node": ">=18"
+  },
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "current_day_schedule.json",
+      "site-data.json",
+      "site-data.json.tmp",
+      ".vapid.json",
+      "vaisnava_calendar_overrides.json",
+      "push_subscriptions.json"
+    ]
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.5",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^4.22.1",
+    "express-validator": "^7.3.2",
+    "fast-xml-parser": "^5.11.1",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^3.0.3",
+    "nodemailer": "^10.0.1",
+    "uuid": "^9.0.1",
+    "web-push": "^3.6.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}

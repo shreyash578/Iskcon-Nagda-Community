@@ -1,0 +1,11 @@
+﻿{
+  "name": "iskcon-nagda-fullstack-v3",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix backend start",
+    "dev": "npm --prefix backend run dev"
+  },
+  "nodemonConfig": {
+    "ignore": ["backend/current_day_schedule.json", "current_day_schedule.json", "backend/site-data.json", "backend/site-data.json.tmp"]
+  }
+}

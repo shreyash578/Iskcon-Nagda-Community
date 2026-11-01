@@ -1,0 +1,988 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<link rel="icon" href="iskcon-logo.png" type="image/png"/>
+<link rel="apple-touch-icon" href="iskcon-logo.png"/>
+<title>ISKCON Nagda Community — Admin Panel</title>
+<style>
+:root{
+  --s:#E8590A;--g:#C89B2A;--g2:#E6BF5A;--m:#7B1E2E;--deep:#1a0408;
+  --cream:#FBF7F0;--white:#fff;--text:#2A1A10;--text2:#5A3E2A;--text3:#9A7A60;
+  --border:rgba(200,155,42,0.2);--shadow:rgba(42,26,16,0.1);
+  --green:#2E7D32;--red:#C62828;--blue:#1565C0;--amber:#E65100;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:var(--text);min-height:100vh;}
+/* LOGIN */
+.login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--deep),var(--m));}
+.login-box{background:#fff;border-radius:18px;padding:40px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+.login-orb{width:64px;height:64px;background:linear-gradient(135deg,var(--g),var(--s));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 16px;}
+.login-box h1{font-size:20px;color:var(--text);margin-bottom:4px;}
+.login-box p{font-size:13px;color:var(--text3);margin-bottom:28px;}
+.login-box input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;margin-bottom:14px;background:var(--cream);}
+.login-box input:focus{border-color:var(--s);outline:none;}
+.login-err{color:var(--red);font-size:13px;margin-bottom:10px;}
+/* LAYOUT */
+.app{display:none;min-height:100vh;}
+.app.visible{display:flex;}
+.sidebar{width:240px;background:var(--deep);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;}
+.sidebar-brand{padding:20px 18px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sidebar-brand h2{font-size:14px;color:var(--g2);font-weight:700;}
+.sidebar-brand p{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px;}
+.sidebar-nav{flex:1;padding:12px 0;overflow-y:auto;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:11px 18px;color:rgba(255,255,255,.55);font-size:13px;cursor:pointer;transition:.15s;border-left:3px solid transparent;}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);}
+.nav-item.active{background:rgba(232,89,10,.15);color:var(--s);border-left-color:var(--s);}
+.nav-item .icon{font-size:17px;width:22px;flex-shrink:0;}
+.sidebar-footer{padding:14px 18px;border-top:1px solid rgba(255,255,255,.07);font-size:12px;color:rgba(255,255,255,.3);}
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:#fff;border-bottom:1px solid #e8e8e8;padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar h1{font-size:18px;color:var(--text);font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.live-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);font-weight:600;}
+.live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.logout-btn{padding:6px 14px;background:var(--cream);border:1px solid var(--border);border-radius:6px;font-size:12px;cursor:pointer;font-weight:600;}
+.content{padding:24px 28px;flex:1;}
+/* CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+.stat-card{background:#fff;border-radius:12px;padding:18px;border:1px solid #e8e8e8;display:flex;align-items:center;gap:14px;}
+.stat-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.stat-icon.orange{background:rgba(232,89,10,.1);}
+.stat-icon.green{background:rgba(46,125,50,.1);}
+.stat-icon.blue{background:rgba(21,101,192,.1);}
+.stat-icon.gold{background:rgba(200,155,42,.1);}
+.stat-icon.red{background:rgba(198,40,40,.1);}
+.stat-icon.purple{background:rgba(106,27,154,.1);}
+.stat-num{font-size:24px;font-weight:700;color:var(--text);}
+.stat-label{font-size:12px;color:var(--text3);}
+/* SECTIONS */
+.panel{background:#fff;border-radius:14px;border:1px solid #e8e8e8;margin-bottom:22px;overflow:hidden;}
+.panel-head{padding:16px 20px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
+.panel-head h2{font-size:15px;font-weight:700;color:var(--text);}
+.panel-body{padding:20px;}
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:.15s;display:inline-flex;align-items:center;gap:6px;}
+.btn-primary{background:var(--s);color:#fff;}
+.btn-primary:hover{background:#F5834A;}
+.btn-primary:disabled{background:#ccc;cursor:not-allowed;}
+.btn-green{background:var(--green);color:#fff;}
+.btn-green:hover{filter:brightness(1.1);}
+.btn-red{background:var(--red);color:#fff;}
+.btn-red:hover{filter:brightness(1.1);}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-blue:hover{filter:brightness(1.1);}
+.btn-gold{background:var(--g);color:#fff;}
+.btn-gold:hover{background:var(--g2);color:var(--deep);}
+.btn-outline{background:#fff;border:1.5px solid var(--border);color:var(--text2);}
+.btn-outline:hover{border-color:var(--s);color:var(--s);}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-loading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;margin-left:6px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* FORMS */
+.form-row{margin-bottom:14px;}
+.form-row label{display:block;font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.form-row input,.form-row select,.form-row textarea{width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;color:var(--text);transition:.18s;}
+.form-row input:focus,.form-row select:focus,.form-row textarea:focus{border-color:var(--s);outline:none;box-shadow:0 0 0 3px rgba(232,89,10,.1);}
+.form-row textarea{resize:vertical;min-height:80px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+/* NOTIFY BOX */
+.notify-box{border-radius:12px;padding:20px;margin-bottom:16px;}
+.notify-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px;}
+.quick-btn{background:#fff;border:1.5px solid #e0e0e0;border-radius:10px;padding:14px 12px;cursor:pointer;text-align:center;transition:.18s;font-size:12px;font-weight:600;color:var(--text2);}
+.quick-btn:hover{border-color:var(--s);color:var(--s);background:rgba(232,89,10,.04);}
+.quick-btn .qicon{font-size:24px;display:block;margin-bottom:5px;}
+/* NOTIF LIST */
+.notif-list{display:flex;flex-direction:column;gap:10px;max-height:400px;overflow-y:auto;}
+.notif-row{background:#f9f9f9;border-radius:10px;padding:13px 15px;display:flex;gap:12px;align-items:flex-start;border:1px solid #f0f0f0;}
+.notif-icon{font-size:22px;flex-shrink:0;}
+.notif-info strong{display:block;font-size:13px;color:var(--text);margin-bottom:2px;}
+.notif-info p{font-size:12px;color:var(--text3);}
+.notif-info small{font-size:11px;color:#aaa;}
+.notif-del{margin-left:auto;background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;flex-shrink:0;}
+.notif-del:hover{color:var(--red);}
+.badge-sent{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.badge-admin{background:rgba(232,89,10,.1);color:var(--s);}
+.badge-system{background:rgba(21,101,192,.1);color:var(--blue);}
+/* TABLE */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;}
+.data-table th{text-align:left;padding:10px 12px;border-bottom:2px solid #f0f0f0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);}
+.data-table td{padding:10px 12px;border-bottom:1px solid #f7f7f7;color:var(--text);}
+.data-table tr:last-child td{border:none;}
+.data-table tr:hover td{background:#fafafa;}
+/* TABS */
+.tabs{display:flex;gap:4px;margin-bottom:20px;border-bottom:2px solid #f0f0f0;padding-bottom:0;}
+.tab{padding:10px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-2px;transition:.15s;}
+.tab.active{color:var(--s);border-bottom-color:var(--s);}
+/* SUCCESS / ERROR msgs */
+.msg{padding:12px 16px;border-radius:8px;font-size:13px;font-weight:600;margin-bottom:14px;}
+.msg.success{background:#E8F5E9;color:var(--green);border:1px solid #A5D6A7;}
+.msg.error{background:#FFEBEE;color:var(--red);border:1px solid #FFCDD2;}
+.msg.info{background:#E3F2FD;color:var(--blue);border:1px solid #BBDEFB;}
+/* SSE STATUS */
+.sse-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;}
+.sse-dot{width:8px;height:8px;border-radius:50%;}
+.sse-dot.connected{background:var(--green);animation:pulse 1.5s infinite;}
+.sse-dot.disconnected{background:var(--red);}
+/* EVENT FORM CARD */
+.add-event-form{background:#f9fafb;border-radius:12px;padding:20px;margin-top:16px;border:1px dashed #e0e0e0;}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:8px;}
+.emoji-btn{padding:6px;border:1.5px solid #e0e0e0;border-radius:6px;cursor:pointer;font-size:18px;text-align:center;background:#fff;transition:.15s;}
+.emoji-btn.selected,.emoji-btn:hover{border-color:var(--s);background:rgba(232,89,10,.05);}
+/* Toast */
+.toast-area{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:#fff;border-radius:10px;padding:12px 16px;box-shadow:0 6px 24px rgba(0,0,0,.15);border:1px solid #e8e8e8;display:flex;gap:10px;align-items:flex-start;min-width:280px;animation:tIn .3s ease both;}
+@keyframes tIn{from{opacity:0;transform:translateX(80px)}to{opacity:1;transform:none}}
+.toast.out{animation:tOut .25s ease both;}
+@keyframes tOut{to{opacity:0;transform:translateX(80px)}}
+.toast strong{display:block;font-size:13px;color:var(--text);}
+.toast span{font-size:12px;color:var(--text3);}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast-area" id="toastArea"></div>
+
+<!-- LOGIN -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-box">
+    <div class="login-orb"><img src="iskcon-logo.png" style="width:100%;height:100%;" alt="ISKCON"/></div>
+    <h1>ISKCON Nagda Community</h1>
+    <p>Admin Panel — Restricted Access</p>
+    <div id="loginErr" class="login-err" style="display:none;"></div>
+    <input type="password" id="loginPass" placeholder="Admin password" onkeyup="if(event.keyCode===13)doLogin()"/>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="doLogin()">🔑 Login</button>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div class="app" id="adminApp">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <h2 style="display:flex;align-items:center;gap:8px;"><img src="iskcon-logo.png" style="width:24px;height:24px;" alt="ISKCON"/> ISKCON Nagda Community</h2>
+      <p>Admin Control Panel</p>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">📊</span>Dashboard</div>
+      <div class="nav-item" onclick="showPage('push')"><span class="icon">🔔</span>Send Notification</div>
+      <div class="nav-item" onclick="showPage('broadcast')"><span class="icon">📢</span>Broadcast</div>
+      <div class="nav-item" onclick="showPage('live')"><span class="icon">📺</span>Live Stream</div>
+      <div class="nav-item" onclick="showPage('livelectures')"><span class="icon">📖</span>Live Lectures</div>
+      <div class="nav-item" onclick="showPage('events')"><span class="icon">📅</span>Manage Events</div>
+      <div class="nav-item" onclick="showPage('trips')"><span class="icon">🙏</span>Trips &amp; Yatras</div>
+      <div class="nav-item" onclick="showPage('notices')"><span class="icon">📋</span>Manage Notices</div>
+      <div class="nav-item" onclick="showPage('notifications')"><span class="icon">🗂️</span>Notification Log</div>
+      <div class="nav-item" onclick="showPage('donations')"><span class="icon">💛</span>Donations</div>
+      <div class="nav-item" onclick="showPage('volunteers')"><span class="icon">🤝</span>Volunteers</div>
+      <div class="nav-item" onclick="showPage('newsletter')"><span class="icon">📨</span>Newsletter</div>
+      <div class="nav-item" onclick="showPage('settings')"><span class="icon">🔐</span>Admin Password</div>
+    </div>
+    <div class="sidebar-footer">
+      Connected users: <strong id="sidebarClients">0</strong><br/>
+      <span id="sseStatusText">Connecting…</span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="topbar-right">
+        <div class="sse-status">
+          <div class="sse-dot disconnected" id="sseDot"></div>
+          <span id="sseLabel">Disconnected</span>
+        </div>
+        <div class="live-indicator">
+          <div class="live-dot"></div>
+          <span id="liveViewers">0 live viewers</span>
+        </div>
+        <button class="logout-btn" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page">
+        <div class="stat-grid">
+          <div class="stat-card"><div class="stat-icon orange">📅</div><div><div class="stat-num" id="s-events">0</div><div class="stat-label">Total Events</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">🎟</div><div><div class="stat-num" id="s-regs">0</div><div class="stat-label">Registrations</div></div></div>
+          <div class="stat-card"><div class="stat-icon gold">💛</div><div><div class="stat-num" id="s-donations">₹0</div><div class="stat-label">Total Donations</div></div></div>
+          <div class="stat-card"><div class="stat-icon blue">👥</div><div><div class="stat-num" id="s-donors">0</div><div class="stat-label">Donors</div></div></div>
+          <div class="stat-card"><div class="stat-icon purple">🤝</div><div><div class="stat-num" id="s-vols">0</div><div class="stat-label">Volunteers</div></div></div>
+          <div class="stat-card"><div class="stat-icon red">📡</div><div><div class="stat-num" id="s-clients">0</div><div class="stat-label">Live Clients</div></div></div>
+          <div class="stat-card"><div class="stat-icon green">📨</div><div><div class="stat-num" id="s-subs">0</div><div class="stat-label">Newsletter Subs</div></div></div>
+          <div class="stat-card"><div class="stat-icon orange">🔔</div><div><div class="stat-num" id="s-notifs">0</div><div class="stat-label">Notifications Sent</div></div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="panel">
+            <div class="panel-head"><h2>Recent Donations</h2></div>
+            <div class="panel-body"><table class="data-table"><thead><tr><th>Name</th><th>Amount</th><th>Cause</th></tr></thead><tbody id="recentDonations"></tbody></table></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Recent Volunteers</h2></div>
+            <div class="panel-body"><table class="data-table"><thead><tr><th>Name</th><th>Seva Area</th><th>Joined</th></tr></thead><tbody id="recentVols"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PUSH NOTIFICATION -->
+      <div id="page-push" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>🔔 Send Push Notification</h2><span id="pushClientsLabel" style="font-size:12px;color:var(--text3);">0 users online</span></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">This notification will appear <strong>instantly</strong> as a popup to ALL users currently viewing the website.</p>
+            <div id="pushMsg"></div>
+            <div class="notify-quick">
+              <button class="quick-btn" onclick="prefill('📺','We Are LIVE!','Evening Aarti is streaming live now on YouTube. Click Watch Live!','live')"><span class="qicon">📺</span>Going Live</button>
+              <button class="quick-btn" onclick="prefill('🎡','Rath Yatra Update','Procession begins in 30 minutes! Join us at ISKCON Temple Nagda.','announcement')"><span class="qicon">🎡</span>Rath Yatra</button>
+              <button class="quick-btn" onclick="prefill('🙏','Aarti Starting','Mangala Aarti begins in 5 minutes. Join us live!','announcement')"><span class="qicon">🙏</span>Aarti Alert</button>
+              <button class="quick-btn" onclick="prefill('📖','New Lecture Posted','A new Bhagavad Gita lecture has been uploaded. Watch now!','lecture')"><span class="qicon">📖</span>New Lecture</button>
+              <button class="quick-btn" onclick="prefill('💛','Donation Drive','Help us reach our Rath Yatra fund goal. Every contribution counts!','donation')"><span class="qicon">💛</span>Donation Drive</button>
+              <button class="quick-btn" onclick="prefill('🌺','Seva Opportunity','Volunteer seva available this Sunday. Sign up now!','volunteer')"><span class="qicon">🌺</span>Seva Needed</button>
+            </div>
+            <div class="form-grid">
+              <div class="form-row"><label>Notification Title *</label><input id="pushTitle" placeholder="e.g. Rath Yatra Starting Now!"/></div>
+              <div class="form-row"><label>Icon Emoji</label><input id="pushIcon" placeholder="🔔" maxlength="4"/></div>
+            </div>
+            <div class="form-row"><label>Message Body *</label><textarea id="pushBody" placeholder="Write your notification message here…"></textarea></div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label>Notification Type</label>
+                <select id="pushType">
+                  <option value="announcement">📢 General Announcement</option>
+                  <option value="live">📺 Live Stream Alert</option>
+                  <option value="event">📅 Event Update</option>
+                  <option value="donation">💛 Donation Drive</option>
+                  <option value="lecture">📖 New Lecture</option>
+                  <option value="volunteer">🌺 Volunteer/Seva</option>
+                  <option value="urgent">🚨 Urgent Notice</option>
+                </select>
+              </div>
+              <div style="display:flex;align-items:flex-end;padding-bottom:14px;">
+                <button class="btn btn-primary" id="pushBtn" onclick="sendPush()" style="width:100%;justify-content:center;">📢 Send to All Users</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BROADCAST -->
+      <div id="page-broadcast" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>📢 Broadcast Message</h2></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--text3);margin-bottom:20px;">Send a <strong>general broadcast</strong> or an <strong>urgent/emergency notice</strong> to all connected users immediately.</p>
+            <div id="broadcastMsg"></div>
+            <div class="form-row"><label>Message *</label><textarea id="broadcastBody" placeholder="Type your broadcast message here…" style="min-height:100px;"></textarea></div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label>Broadcast Type</label>
+                <select id="broadcastType">
+                  <option value="announcement">📢 General Announcement</option>
+                  <option value="urgent">🚨 Urgent / Emergency</option>
+                </select>
+              </div>
+              <div style="display:flex;gap:10px;align-items:flex-end;padding-bottom:14px;">
+                <button class="btn btn-primary" onclick="sendBroadcast()" style="flex:1;justify-content:center;">📢 Broadcast Now</button>
+                <button class="btn btn-red" onclick="document.getElementById('broadcastType').value='urgent';sendBroadcast()" style="flex:1;justify-content:center;">🚨 Urgent Alert</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h2>Quick Broadcast Templates</h2></div>
+          <div class="panel-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <button class="quick-btn" style="text-align:left;padding:16px;" onclick="quickBroadcast('Temple will remain closed tomorrow for maintenance. Normal timings resume the day after.')"><strong>🔒 Temple Closed Tomorrow</strong><br/><span style="font-size:11px;color:#888;">Click to send</span></button>
+              <button class="quick-btn" style="text-align:left;padding:16px;" onclick="quickBroadcast('Special prasadam distribution today after Evening Aarti at 7 PM. All devotees welcome!')"><strong>🍛 Prasadam Distribution</strong><br/><span style="font-size:11px;color:#888;">Click to send</span></button>
+              <button class="quick-btn" style="text-align:left;padding:16px;" onclick="quickBroadcast('Rath Yatra procession is now underway! Join us at Nagda Main Market. Hare Krishna!')"><strong>🎡 Yatra Has Begun!</strong><br/><span style="font-size:11px;color:#888;">Click to send</span></button>
+              <button class="quick-btn" style="text-align:left;padding:16px;" onclick="quickBroadcast('URGENT: Due to heavy rain, the outdoor event has been moved inside the main hall.')"><strong>🚨 Event Location Change</strong><br/><span style="font-size:11px;color:#888;">Click to send</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE STREAM -->
+      <div id="page-live" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>📺 Live Stream Control</h2></div>
+          <div class="panel-body">
+            <div id="liveMsg"></div>
+            <div class="form-grid">
+              <div class="form-row"><label>Current Program</label><input id="liveProgram" placeholder="e.g. Evening Aarti"/></div>
+              <div class="form-row"><label>YouTube Video/Stream ID</label><input id="liveEmbedId" placeholder="e.g. 5qap5aO4i9A"/></div>
+            </div>
+            <div class="form-row">
+              <label>Stream Status</label>
+              <select id="liveIsLive">
+                <option value="true">🔴 LIVE — Streaming Now</option>
+                <option value="false">⚫ Offline — Not Streaming</option>
+              </select>
+            </div>
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-green" onclick="goLive(true)" style="flex:1;justify-content:center;">🔴 Start Live & Notify Users</button>
+              <button class="btn btn-outline" onclick="goLive(false)" style="flex:1;justify-content:center;">⚫ Go Offline</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIVE LECTURES -->
+      <div id="page-livelectures" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>📖 Live Lectures Schedule</h2>
+            <button class="btn btn-primary btn-sm" onclick="toggleAddLiveLecture()">+ Add Live Lecture</button>
+          </div>
+          <div class="panel-body">
+            <div id="liveLectureMsg"></div>
+
+            <div id="addLiveLectureForm" style="display:none;" class="add-event-form">
+              <h3 style="font-size:14px;margin-bottom:16px;color:var(--text);">Schedule Sunday Zoom Class</h3>
+              <div class="form-grid">
+                <div class="form-row"><label>Class topic *</label><input id="llTitle" placeholder="e.g. Bhagavad Gita: Chapter 12"/></div>
+                <div class="form-row"><label>Speaker</label><input id="llSpeaker" placeholder="e.g. HG ... Prabhu"/></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><label>Sunday start (ISO) *</label><input id="llStartAt" placeholder="2026-06-07T10:00:00+05:30"/></div>
+                <div class="form-row"><label>End (ISO)</label><input id="llEndAt" placeholder="2026-06-07T11:00:00+05:30"/></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><label>Zoom meeting link *</label><input id="llJoinUrl" placeholder="https://zoom.us/j/..."/></div>
+                <div class="form-row"><label>Platform</label><input id="llPlatform" value="Zoom" disabled/></div>
+              </div>
+              <div class="form-row"><label>Description</label><input id="llDesc" placeholder="Short description (optional)"/></div>
+              <div class="form-row">
+                <label><input type="checkbox" id="llNotify" style="margin-right:8px;transform:scale(1.1);"/>Send notification to users</label>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-green" onclick="addLiveLecture()" style="flex:1;justify-content:center;">Save</button>
+                <button class="btn btn-outline" onclick="toggleAddLiveLecture(false)" style="flex:1;justify-content:center;">Cancel</button>
+              </div>
+            </div>
+
+            <div style="overflow:auto;">
+              <table class="table">
+                <thead><tr><th>Title</th><th>Start</th><th>Speaker</th><th>Join</th><th></th></tr></thead>
+                <tbody id="liveLecturesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- EVENTS -->
+      <div id="page-events" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>📅 Manage Events</h2>
+            <button class="btn btn-primary btn-sm" onclick="toggleAddEvent()">+ Add Event</button>
+          </div>
+          <div class="panel-body">
+            <div id="addEventForm" style="display:none;" class="add-event-form">
+              <h3 style="font-size:14px;margin-bottom:16px;color:var(--text);">Add New Event</h3>
+              <div id="eventFormMsg"></div>
+              <div class="form-grid">
+                <div class="form-row"><label>Title *</label><input id="evTitle" placeholder="Event title"/></div>
+                <div class="form-row"><label>Category</label>
+                  <select id="evCat">
+                    <option value="festival">Festival</option><option value="yatra">Yatra</option>
+                    <option value="lecture">Lecture</option><option value="meeting">Meeting</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><label>Date</label><input id="evDate" type="date"/></div>
+                <div class="form-row"><label>Time</label><input id="evTime" placeholder="e.g. 9:00 AM"/></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row"><label>Location</label><input id="evLoc" placeholder="e.g. ISKCON Temple"/></div>
+                <div class="form-row"><label>Confirmed capacity (optional)</label><input id="evSeats" type="number" min="1" placeholder="Leave blank if not confirmed"/></div>
+              </div>
+              <div class="form-row"><label>Confirmed programme details *</label><textarea id="evDesc" placeholder="Enter only information confirmed by the temple"></textarea></div>
+              <div style="display:flex;gap:10px;margin-top:6px;">
+                <button class="btn btn-primary" onclick="addEvent()">✅ Create Event + Notify Users</button>
+                <button class="btn btn-outline" onclick="toggleAddEvent()">Cancel</button>
+              </div>
+            </div>
+            <table class="data-table" style="margin-top:16px;">
+              <thead><tr><th>Event</th><th>Date</th><th>Category</th><th>Seats</th><th>Registered</th><th>Actions</th></tr></thead>
+              <tbody id="eventsTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTICES -->
+      <div id="page-notices" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>📋 Notice Board</h2></div>
+          <div class="panel-body">
+            <div id="noticeMsg"></div>
+            <div class="add-event-form" style="margin-bottom:18px;">
+              <h3 style="font-size:14px;margin-bottom:14px;">Post New Notice</h3>
+              <div class="form-grid">
+                <div class="form-row"><label>Title *</label><input id="ntTitle" placeholder="Notice title"/></div>
+                <div class="form-row"><label>Important?</label><select id="ntImportant"><option value="true">Yes — Mark as Important</option><option value="false">No — Regular Notice</option></select></div>
+              </div>
+              <div class="form-row"><label>Body *</label><textarea id="ntBody" placeholder="Notice details…"></textarea></div>
+              <button class="btn btn-primary" onclick="addNotice()">📋 Post Notice + Notify Users</button>
+            </div>
+            <table class="data-table">
+              <thead><tr><th>Title</th><th>Date</th><th>Important</th><th>Actions</th></tr></thead>
+              <tbody id="noticesTable"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATION LOG -->
+      <div id="page-notifications" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>🗂️ Notification Log</h2>
+            <button class="btn btn-red btn-sm" onclick="clearAllNotifs()">🗑 Clear All</button>
+          </div>
+          <div class="panel-body">
+            <div id="notifList" class="notif-list"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DONATIONS -->
+      <div id="page-donations" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>💛 Donation Records</h2></div>
+          <div class="panel-body"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Amount</th><th>Cause</th><th>TxnID</th><th>Date</th></tr></thead><tbody id="donationsTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- VOLUNTEERS -->
+      <div id="page-volunteers" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>🤝 Volunteer Records</h2></div>
+          <div class="panel-body"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Seva Area</th><th>Availability</th><th>Joined</th></tr></thead><tbody id="volsTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- NEWSLETTER -->
+      <div id="page-newsletter" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>📨 Newsletter Subscribers</h2></div>
+          <div class="panel-body"><table class="data-table"><thead><tr><th>Name</th><th>Email</th><th>Subscribed On</th></tr></thead><tbody id="newsletterTable"></tbody></table></div>
+        </div>
+      </div>
+
+      <div id="page-trips" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>🙏 Confirmed Trips &amp; Yatras</h2></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Publish a trip only after the temple confirms its dates, destination and price. Completed trips disappear from the public site automatically.</p>
+            <div id="tripAdminMsg"></div>
+            <div class="form-grid">
+              <div class="form-row"><label>Trip / yatra name *</label><input id="tripTitle" placeholder="Confirmed trip name"/></div>
+              <div class="form-row"><label>Destination *</label><input id="tripDestination" placeholder="Destination"/></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-row"><label>Start date *</label><input id="tripStartDate" type="date"/></div>
+              <div class="form-row"><label>Duration (days) *</label><input id="tripDays" type="number" min="1" max="60"/></div>
+              <div class="form-row"><label>Price per person (₹) *</label><input id="tripPrice" type="number" min="0" step="1"/></div>
+              <div class="form-row"><label>Confirmed seat capacity *</label><input id="tripSeats" type="number" min="1" step="1"/></div>
+            </div>
+            <div class="form-row"><label>Confirmed details</label><textarea id="tripDescription" placeholder="Only include details confirmed by the temple"></textarea></div>
+            <button class="btn btn-primary" onclick="publishTripAdmin()">Publish Confirmed Trip</button>
+          </div>
+        </div>
+        <div class="panel" style="margin-top:20px;">
+          <div class="panel-head"><h2>Trip List &amp; Archive</h2></div>
+          <div class="panel-body" style="overflow:auto;">
+            <table class="data-table"><thead><tr><th>Trip</th><th>Destination</th><th>Dates</th><th>Price</th><th>Status</th><th></th></tr></thead><tbody id="adminTripsTable"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div id="page-settings" class="page" style="display:none;">
+        <div class="panel">
+          <div class="panel-head"><h2>🔐 Change Admin Password</h2></div>
+          <div class="panel-body">
+            <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">Choose a new password with at least 8 characters. It will be saved securely by the backend.</p>
+            <div id="passwordMsg"></div>
+            <div class="form-row"><label>Current password</label><input id="currentAdminPassword" type="password" autocomplete="current-password"/></div>
+            <div class="form-row"><label>New password</label><input id="newAdminPassword" type="password" autocomplete="new-password" minlength="8"/></div>
+            <div class="form-row"><label>Confirm new password</label><input id="confirmAdminPassword" type="password" autocomplete="new-password" minlength="8"/></div>
+            <button class="btn btn-primary" id="changePasswordBtn" onclick="changeAdminPassword()">Update Password</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- content -->
+  </div><!-- main -->
+</div><!-- app -->
+
+<script>
+const API = window.location.protocol === 'file:' ? 'http://localhost:3000' : window.location.origin;
+let PASS = '';
+let sseConn = null;
+
+/* ── LOGIN ── */
+function doLogin() {
+  const pass = document.getElementById('loginPass').value;
+  if (!pass) { showLoginErr('Please enter the admin password'); return; }
+  PASS = pass;
+  fetch(API + '/api/admin/dashboard', { headers:{ 'X-Admin-Password': pass } })
+  .then(r => r.json())
+  .then(d => {
+    if (d.success) {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('adminApp').classList.add('visible');
+      loadDashboard();
+      connectSSE();
+      setInterval(loadDashboard, 30000);
+    } else {
+      showLoginErr(d.message || 'Admin sign-in failed. Check the password or contact the temple administrator.');
+    }
+  })
+  .catch(() => showLoginErr('Admin sign-in is temporarily unavailable. Please try again later.'));
+}
+
+function showLoginErr(msg) {
+  const el = document.getElementById('loginErr');
+  el.textContent = msg; el.style.display = 'block';
+}
+
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminApp').classList.remove('visible');
+  if (sseConn) sseConn.close();
+  PASS = '';
+}
+
+/* ── SSE CONNECTION ── */
+function connectSSE() {
+  if (sseConn) sseConn.close();
+  sseConn = new EventSource(API + '/api/stream');
+  sseConn.onopen = function() {
+    document.getElementById('sseDot').className = 'sse-dot connected';
+    document.getElementById('sseLabel').textContent = 'Connected';
+    document.getElementById('sseStatusText').textContent = 'SSE: Live';
+  };
+  sseConn.onmessage = function(e) {
+    try {
+      const data = JSON.parse(e.data);
+      if (data.type === 'connected') {
+        toast('✅', 'SSE Connected', 'Real-time stream active. Pushes will be instant.');
+      } else {
+        // New notification received — update log
+        loadDashboard();
+        toast(data.icon || '🔔', data.title, data.body);
+      }
+    } catch(err) {}
+  };
+  sseConn.onerror = function() {
+    document.getElementById('sseDot').className = 'sse-dot disconnected';
+    document.getElementById('sseLabel').textContent = 'Disconnected';
+    document.getElementById('sseStatusText').textContent = 'SSE: Offline';
+    setTimeout(connectSSE, 5000);
+  };
+}
+
+/* ── LOAD DATA ── */
+function loadDashboard() {
+  adminFetch('/api/admin/dashboard').then(d => {
+    if (!d.success) return;
+    const data = d.data;
+    // Stats
+    document.getElementById('s-events').textContent = data.counts.events;
+    document.getElementById('s-regs').textContent = data.stats.totalRegistrations;
+    document.getElementById('s-donations').textContent = '₹' + (data.stats.totalDonations || 0).toLocaleString();
+    document.getElementById('s-donors').textContent = data.stats.totalDonors;
+    document.getElementById('s-vols').textContent = data.stats.totalVolunteers;
+    document.getElementById('s-clients').textContent = data.counts.liveClients;
+    document.getElementById('s-subs').textContent = data.counts.newsletter;
+    document.getElementById('s-notifs').textContent = data.counts.notifications;
+    document.getElementById('liveViewers').textContent = (data.liveStream.viewerCount || 0) + ' live viewers';
+    document.getElementById('sidebarClients').textContent = data.counts.liveClients;
+    document.getElementById('pushClientsLabel') && (document.getElementById('pushClientsLabel').textContent = data.counts.liveClients + ' users online');
+
+    // Recent donations
+    const dt = document.getElementById('recentDonations');
+    dt.innerHTML = (data.recentDonations || []).map(d =>
+      '<tr><td><strong>' + escapeHtml(d.name) + '</strong></td><td style="color:#2E7D32;font-weight:700;">₹' + Number(d.amount || 0) + '</td><td>' + escapeHtml(d.cause) + '</td></tr>'
+    ).join('') || '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:20px;">No donations yet</td></tr>';
+
+    // Recent volunteers
+    const vt = document.getElementById('recentVols');
+    vt.innerHTML = (data.recentVolunteers || []).map(v =>
+      '<tr><td><strong>' + escapeHtml(v.name) + '</strong></td><td>' + escapeHtml(v.area) + '</td><td>' + escapeHtml((v.joinedAt||'').split('T')[0]) + '</td></tr>'
+    ).join('') || '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:20px;">No volunteers yet</td></tr>';
+
+    // Events table
+    const et = document.getElementById('eventsTable');
+    if (et) {
+      et.innerHTML = (data.events || []).map(e =>
+        '<tr><td><strong>' + escapeHtml(e.emoji) + ' ' + escapeHtml(e.title) + '</strong></td><td>' + escapeHtml(e.date) + '</td><td><span style="font-size:11px;font-weight:700;text-transform:uppercase;color:var(--s);">' + escapeHtml(e.category) + '</span></td><td>' + Number(e.seats || 0) + '</td><td>' + Number(e.registered || 0) + '</td><td><button class="btn btn-red btn-sm" onclick="deleteEvent(\'' + escapeHtml(e.id) + '\')">Delete</button></td></tr>'
+      ).join('') || '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">No events</td></tr>';
+    }
+
+    // Notices table
+    const nt = document.getElementById('noticesTable');
+    if (nt) {
+      nt.innerHTML = (data.notices || []).map(n =>
+        '<tr><td><strong>' + escapeHtml(n.title) + '</strong></td><td>' + escapeHtml(n.postedAt) + '</td><td>' + (n.important ? '<span style="color:var(--s);font-weight:700;">Yes</span>' : 'No') + '</td><td><button class="btn btn-red btn-sm" onclick="deleteNotice(\'' + escapeHtml(n.id) + '\')">Delete</button></td></tr>'
+      ).join('') || '<tr><td colspan="4" style="text-align:center;color:#aaa;padding:20px;">No notices</td></tr>';
+    }
+
+    // Notification log
+    const nl = document.getElementById('notifList');
+    if (nl) {
+      nl.innerHTML = (data.notifications || []).length === 0
+        ? '<div style="text-align:center;padding:30px;color:#aaa;">No notifications sent yet</div>'
+        : (data.notifications || []).map(n =>
+            '<div class="notif-row"><div class="notif-icon">' + escapeHtml(n.icon||'🔔') + '</div><div class="notif-info" style="flex:1;"><strong>' + escapeHtml(n.title) + '</strong><p>' + escapeHtml(n.body) + '</p><small>' + escapeHtml(new Date(n.createdAt).toLocaleString('en-IN')) + ' &nbsp; <span class="badge-sent badge-' + (/^[a-z-]+$/i.test(n.sentBy||'') ? n.sentBy : 'system') + '">' + escapeHtml(n.sentBy||'system') + '</span></small></div><button class="notif-del" title="Delete">✕</button></div>'
+          ).join('');
+    }
+
+    // Donations
+    const donT = document.getElementById('donationsTable');
+    if (donT) {
+      const doms = data.recentDonations || [];
+      donT.innerHTML = doms.length === 0
+        ? '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">No donations yet</td></tr>'
+        : doms.map(d => '<tr><td><strong>' + escapeHtml(d.name) + '</strong></td><td>' + escapeHtml(d.email) + '</td><td style="color:var(--green);font-weight:700;">₹' + Number(d.amount || 0) + '</td><td>' + escapeHtml(d.cause) + '</td><td style="font-size:11px;">' + escapeHtml(d.txnId) + '</td><td>' + escapeHtml((d.donatedAt||'').split('T')[0]) + '</td></tr>').join('');
+    }
+
+    // Volunteers
+    const volT = document.getElementById('volsTable');
+    if (volT) {
+      const vols = data.recentVolunteers || [];
+      volT.innerHTML = vols.length === 0
+        ? '<tr><td colspan="6" style="text-align:center;color:#aaa;padding:20px;">No volunteers yet</td></tr>'
+        : vols.map(v => '<tr><td><strong>' + escapeHtml(v.name) + '</strong></td><td>' + escapeHtml(v.email) + '</td><td>' + escapeHtml(v.phone||'-') + '</td><td>' + escapeHtml(v.area) + '</td><td>' + escapeHtml(v.availability||'-') + '</td><td>' + escapeHtml((v.joinedAt||'').split('T')[0]) + '</td></tr>').join('');
+    }
+
+  }).catch(() => {});
+}
+
+/* ── SEND PUSH ── */
+function sendPush() {
+  const title = document.getElementById('pushTitle').value.trim();
+  const body  = document.getElementById('pushBody').value.trim();
+  const icon  = document.getElementById('pushIcon').value.trim() || '🔔';
+  const type  = document.getElementById('pushType').value;
+
+  if (!title || !body) { showMsg('pushMsg', 'Title and message body are required!', 'error'); return; }
+
+  const btn = document.getElementById('pushBtn');
+  btn.classList.add('btn-loading');
+  btn.disabled = true;
+
+  adminFetch('/api/admin/notify', 'POST', { title, body, icon, type, push:true })
+  .then(d => {
+    btn.classList.remove('btn-loading'); btn.disabled = false;
+    if (d.success) {
+      showMsg('pushMsg', 'Announcement visible on the website and sent to ' + d.data.pushStats.delivered + ' phone(s).', 'success');
+      document.getElementById('pushTitle').value = '';
+      document.getElementById('pushBody').value = '';
+      loadDashboard();
+    } else {
+      showMsg('pushMsg', d.message || 'Failed to send', 'error');
+    }
+  }).catch(() => {
+    btn.classList.remove('btn-loading'); btn.disabled = false;
+    showMsg('pushMsg', 'Backend not reachable. Is server.js running?', 'error');
+  });
+}
+
+function prefill(icon, title, body, type) {
+  document.getElementById('pushIcon').value = icon;
+  document.getElementById('pushTitle').value = title;
+  document.getElementById('pushBody').value = body;
+  document.getElementById('pushType').value = type;
+}
+
+/* ── BROADCAST ── */
+function sendBroadcast() {
+  const message = document.getElementById('broadcastBody').value.trim();
+  const type    = document.getElementById('broadcastType').value;
+  if (!message) { showMsg('broadcastMsg', 'Message is required!', 'error'); return; }
+
+  adminFetch('/api/admin/broadcast', 'POST', { message, type, push:true })
+  .then(d => {
+    if (d.success) {
+      showMsg('broadcastMsg', 'Announcement visible on the website and sent to ' + d.data.pushStats.delivered + ' phone(s).', 'success');
+      document.getElementById('broadcastBody').value = '';
+      loadDashboard();
+    } else {
+      showMsg('broadcastMsg', d.message, 'error');
+    }
+  }).catch(() => showMsg('broadcastMsg', 'Backend not reachable.', 'error'));
+}
+
+function quickBroadcast(msg) {
+  document.getElementById('broadcastBody').value = msg;
+  showPage('broadcast');
+  setTimeout(sendBroadcast, 200);
+}
+
+/* ── LIVE STREAM ── */
+function goLive(isLive) {
+  const program = document.getElementById('liveProgram').value.trim();
+  const embedId = document.getElementById('liveEmbedId').value.trim();
+  adminFetch('/api/admin/live', 'PUT', { isLive, currentProgram:program||'Live Stream', embedId:embedId||undefined })
+  .then(d => {
+    if (d.success) {
+      showMsg('liveMsg', isLive ? 'Stream is LIVE! Users notified! 🔴' : 'Stream is now offline.', isLive ? 'success' : 'info');
+      loadDashboard();
+    } else {
+      showMsg('liveMsg', d.message, 'error');
+    }
+  }).catch(() => showMsg('liveMsg', 'Backend not reachable.', 'error'));
+}
+
+/* ── EVENTS ── */
+function toggleAddEvent() {
+  const f = document.getElementById('addEventForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function addEvent() {
+  const title = document.getElementById('evTitle').value.trim();
+  const date  = document.getElementById('evDate').value;
+  const time = document.getElementById('evTime').value.trim();
+  const location = document.getElementById('evLoc').value.trim();
+  const description = document.getElementById('evDesc').value.trim();
+  if (!title || !date || !time || !location || !description) { showMsg('eventFormMsg','Title, date, time, location and confirmed details are required.','error'); return; }
+
+  adminFetch('/api/admin/events', 'POST', {
+    title, category:document.getElementById('evCat').value,
+    date, time,
+    location,
+    seats:parseInt(document.getElementById('evSeats').value)||undefined,
+    description,
+    color:'#7B1E2E', highlights:[]
+  }).then(d => {
+    if (d.success) {
+      showMsg('eventFormMsg','Event published.','success');
+      loadDashboard(); toggleAddEvent();
+    } else { showMsg('eventFormMsg',d.message,'error'); }
+  }).catch(() => showMsg('eventFormMsg','Backend not reachable.','error'));
+}
+
+function deleteEvent(id) {
+  if (!confirm('Delete this event?')) return;
+  adminFetch('/api/admin/events/'+id,'DELETE')
+  .then(d=>{ if(d.success){toast('🗑','Deleted','Event removed'); loadDashboard();} });
+}
+
+/* ── NOTICES ── */
+function addNotice() {
+  const title = document.getElementById('ntTitle').value.trim();
+  const body  = document.getElementById('ntBody').value.trim();
+  if (!title||!body) { showMsg('noticeMsg','Title and body required!','error'); return; }
+  adminFetch('/api/admin/notices','POST',{ title, body, important:document.getElementById('ntImportant').value==='true' })
+  .then(d=>{ if(d.success){showMsg('noticeMsg','Notice posted and users notified!','success'); loadDashboard(); document.getElementById('ntTitle').value=''; document.getElementById('ntBody').value='';} else{showMsg('noticeMsg',d.message,'error');} })
+  .catch(()=>showMsg('noticeMsg','Backend not reachable.','error'));
+}
+
+function deleteNotice(id) {
+  if (!confirm('Delete this notice?')) return;
+  adminFetch('/api/admin/notices/'+id,'DELETE')
+  .then(d=>{ if(d.success){toast('🗑','Deleted','Notice removed'); loadDashboard();} });
+}
+
+/* ── CLEAR NOTIFS ── */
+/* LIVE LECTURES */
+function toggleAddLiveLecture(force) {
+  const el = document.getElementById('addLiveLectureForm');
+  if (!el) return;
+  if (force === false) { el.style.display = 'none'; return; }
+  el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+}
+
+function loadLiveLecturesAdmin() {
+  const tb = document.getElementById('liveLecturesTable');
+  if (!tb) return;
+  adminFetch('/api/admin/live-lectures').then(d => {
+    if (!d.success) return;
+    const list = d.data || [];
+    tb.innerHTML = list.length === 0
+      ? '<tr><td colspan="5" style="text-align:center;color:#aaa;padding:20px;">No live lectures scheduled</td></tr>'
+      : list.map(x =>
+          '<tr>' +
+          '<td><strong>' + escapeHtml(x.title||'') + '</strong></td>' +
+            '<td style="font-size:12px;color:#666;">' + escapeHtml(x.startAt||'') + '</td>' +
+            '<td>' + escapeHtml(x.speaker||'-') + '</td>' +
+            '<td><a href="' + escapeHtml(x.joinUrl||'#') + '" target="_blank" rel="noopener noreferrer">Join</a></td>' +
+            '<td><button class="btn btn-red btn-sm" onclick="deleteLiveLecture(\'' + escapeHtml(x.id) + '\')">Delete</button></td>' +
+          '</tr>'
+        ).join('');
+  }).catch(()=>{});
+}
+
+function addLiveLecture() {
+  const title = document.getElementById('llTitle').value.trim();
+  const speaker = document.getElementById('llSpeaker').value.trim();
+  const startAt = document.getElementById('llStartAt').value.trim();
+  const endAt = document.getElementById('llEndAt').value.trim();
+  const joinUrl = document.getElementById('llJoinUrl').value.trim();
+  const platform = 'Zoom';
+  const description = document.getElementById('llDesc').value.trim();
+  const notify = document.getElementById('llNotify').checked === true;
+
+  if (!title || !startAt || !joinUrl) { showMsg('liveLectureMsg','Topic, Sunday start time, and Zoom link are required','error'); return; }
+
+  adminFetch('/api/admin/live-lectures','POST',{ title, speaker, startAt, endAt, joinUrl: joinUrl || undefined, platform, description, notify })
+    .then(d => {
+      if (d.success) {
+        showMsg('liveLectureMsg','Sunday Zoom class published on the public site.','success');
+        document.getElementById('llTitle').value = '';
+        document.getElementById('llSpeaker').value = '';
+        document.getElementById('llStartAt').value = '';
+        document.getElementById('llEndAt').value = '';
+        document.getElementById('llJoinUrl').value = '';
+        document.getElementById('llDesc').value = '';
+        document.getElementById('llNotify').checked = false;
+        toggleAddLiveLecture(false);
+        loadLiveLecturesAdmin();
+      } else {
+        showMsg('liveLectureMsg', d.message || 'Failed', 'error');
+      }
+    })
+    .catch(()=>showMsg('liveLectureMsg','Backend not reachable.','error'));
+}
+
+function deleteLiveLecture(id) {
+  if (!confirm('Delete this live lecture?')) return;
+  adminFetch('/api/admin/live-lectures/'+id,'DELETE')
+    .then(d => { if(d.success){ toast('🗑','Deleted','Live lecture removed'); loadLiveLecturesAdmin(); } });
+}
+
+function clearAllNotifs() {
+  if (!confirm('Clear ALL notifications from the log?')) return;
+  adminFetch('/api/admin/notifications','DELETE')
+  .then(d=>{ if(d.success){toast('🗑','Cleared','All notifications cleared'); loadDashboard();} });
+}
+
+/* ── HELPERS ── */
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, char => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[char]));
+}
+
+function adminFetch(url, method, body) {
+  const opts = { method:method||'GET', headers:{ 'Content-Type':'application/json', 'X-Admin-Password':PASS } };
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(API+url, opts).then(r=>r.json());
+}
+
+function changeAdminPassword() {
+  const currentPassword = document.getElementById('currentAdminPassword').value;
+  const newPassword = document.getElementById('newAdminPassword').value;
+  const confirmPassword = document.getElementById('confirmAdminPassword').value;
+  if (newPassword.length < 8) return showMsg('passwordMsg', 'New password must be at least 8 characters.', 'error');
+  if (newPassword !== confirmPassword) return showMsg('passwordMsg', 'The new passwords do not match.', 'error');
+  const button = document.getElementById('changePasswordBtn');
+  button.disabled = true;
+  adminFetch('/api/admin/change-password', 'POST', { currentPassword, newPassword })
+    .then(data => {
+      if (!data.success) return showMsg('passwordMsg', data.message || 'Could not change password.', 'error');
+      PASS = newPassword;
+      document.getElementById('currentAdminPassword').value = '';
+      document.getElementById('newAdminPassword').value = '';
+      document.getElementById('confirmAdminPassword').value = '';
+      showMsg('passwordMsg', data.message, 'success');
+    })
+    .catch(() => showMsg('passwordMsg', 'Could not reach the backend. Password was not changed.', 'error'))
+    .finally(() => { button.disabled = false; });
+}
+
+function loadTripsAdmin() {
+  adminFetch('/api/admin/trips').then(data => {
+    if (!data.success) return showMsg('tripAdminMsg', data.message || 'Could not load trips.', 'error');
+    const trips = data.data || [];
+    const tbody = document.getElementById('adminTripsTable');
+    tbody.innerHTML = trips.length ? trips.map(trip => `<tr>
+      <td>${escapeHtml(trip.title)}</td><td>${escapeHtml(trip.destination)}</td>
+      <td>${escapeHtml(trip.startDate)}${trip.endDate ? ' – ' + escapeHtml(trip.endDate) : ''}</td>
+      <td>₹${Number(trip.price || 0).toLocaleString('en-IN')}</td>
+      <td>${escapeHtml(trip.status || 'Upcoming')}</td>
+      <td><button class="btn btn-outline btn-sm" onclick="removeTripAdmin('${escapeHtml(trip.id)}')">Remove</button></td>
+    </tr>`).join('') : '<tr><td colspan="6">No trips or yatras are listed.</td></tr>';
+  }).catch(() => showMsg('tripAdminMsg', 'Could not reach the backend.', 'error'));
+}
+
+function publishTripAdmin() {
+  const trip = {
+    title:document.getElementById('tripTitle').value.trim(),
+    destination:document.getElementById('tripDestination').value.trim(),
+    startDate:document.getElementById('tripStartDate').value,
+    days:Number(document.getElementById('tripDays').value),
+    price:Number(document.getElementById('tripPrice').value),
+    seats:Number(document.getElementById('tripSeats').value),
+    description:document.getElementById('tripDescription').value.trim()
+  };
+  adminFetch('/api/admin/trips', 'POST', trip).then(data => {
+    if (!data.success) return showMsg('tripAdminMsg', data.message || 'Could not publish trip.', 'error');
+    ['tripTitle','tripDestination','tripStartDate','tripDays','tripPrice','tripSeats','tripDescription'].forEach(id => { document.getElementById(id).value = ''; });
+    showMsg('tripAdminMsg', data.message, 'success');
+    loadTripsAdmin();
+  }).catch(() => showMsg('tripAdminMsg', 'Could not reach the backend.', 'error'));
+}
+
+function removeTripAdmin(id) {
+  adminFetch('/api/admin/trips/' + encodeURIComponent(id), 'DELETE').then(data => {
+    if (!data.success) return showMsg('tripAdminMsg', data.message || 'Could not remove trip.', 'error');
+    showMsg('tripAdminMsg', data.message, 'success');
+    loadTripsAdmin();
+  }).catch(() => showMsg('tripAdminMsg', 'Could not reach the backend.', 'error'));
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p=>p.style.display='none');
+  document.getElementById('page-'+name).style.display='block';
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const titles={dashboard:'Dashboard',push:'Send Notification',broadcast:'Broadcast',live:'Live Stream Control',livelectures:'Live Lectures',events:'Manage Events',trips:'Trips & Yatras',notices:'Manage Notices',notifications:'Notification Log',donations:'Donations',volunteers:'Volunteers',newsletter:'Newsletter',settings:'Admin Password'};
+  document.getElementById('pageTitle').textContent = titles[name]||name;
+  // load fresh data for the page
+  if (name === 'livelectures') loadLiveLecturesAdmin();
+  else if (name === 'trips') loadTripsAdmin();
+  else loadDashboard();
+}
+
+function showMsg(id, text, type) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.className = 'msg ' + type;
+  el.textContent = text;
+  el.style.display = 'block';
+  setTimeout(()=>el.style.display='none', 5000);
+}
+
+function toast(icon, title, body) {
+  const area = document.getElementById('toastArea');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  const iconNode = document.createElement('div');
+  iconNode.style.fontSize = '20px';
+  iconNode.textContent = icon || '🔔';
+  const textNode = document.createElement('div');
+  const titleNode = document.createElement('strong');
+  titleNode.textContent = title || '';
+  const bodyNode = document.createElement('span');
+  bodyNode.textContent = body || '';
+  textNode.append(titleNode, bodyNode);
+  t.append(iconNode, textNode);
+  area.appendChild(t);
+  setTimeout(()=>{ t.classList.add('out'); setTimeout(()=>t.remove(),300); }, 4000);
+}
+
+// Show dashboard on load
+showPage('dashboard');
+</script>
+</body>
+</html>
